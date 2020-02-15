@@ -41,6 +41,10 @@ export default class Main extends Component {
     try {
       const { newRepo, repositories } = this.state;
 
+      if (newRepo === '') {
+        throw 'Digite o nome de um repositório';
+      }
+
       const repoFound = repositories.find(
         repoName => repoName.name === newRepo
       );
