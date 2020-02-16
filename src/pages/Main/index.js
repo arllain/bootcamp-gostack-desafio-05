@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
 import Container from '../components/Container';
-import { Form, SubmitButton, List } from './styles';
+import { Form, SubmitButton, List, InputGroup } from './styles';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
@@ -10,7 +10,8 @@ export default class Main extends Component {
     newRepo: '',
     repositories: [],
     loading: false,
-    error: null,
+    error: false,
+    errorMessage: '',
   };
 
   // Carregar os dados do localStorage
@@ -42,15 +43,11 @@ export default class Main extends Component {
       const { newRepo, repositories } = this.state;
 
       if (newRepo === '') {
-        throw 'Digite o nome de um repositório';
+        throw new Error('Digite o nome de um repositório');
       }
 
-      const repoFound = repositories.find(
-        repoName => repoName.name === newRepo
-      );
-
-      if (repoFound) {
-        throw 'Repositório duplicado';
+      if (repositories.find(repoName => repoName.name === newRepo)) {
+        throw new Error('Repositório duplicado');
       }
 
       const response = await api.get(`/repos/${newRepo}`);
@@ -62,29 +59,35 @@ export default class Main extends Component {
         repositories: [...repositories, data],
         newRepo: '',
         loading: false,
+        error: false,
+        errorMessage: '',
       });
     } catch (error) {
-      this.setState({ error: true });
+      this.setState({ error: true, errorMessage: error.message });
     } finally {
       this.setState({ loading: false });
     }
   };
 
   render() {
-    const { newRepo, loading, repositories, error } = this.state;
+    const { newRepo, loading, repositories, error, errorMessage } = this.state;
     return (
       <Container>
         <h1>
           <FaGithubAlt />
           Repositório
         </h1>
-        <Form onSubmit={this.handleSubmit} error={error}>
-          <input
-            type="text"
-            placeholder="Adicionar repositório"
-            value={newRepo}
-            onChange={this.handleInputChange}
-          />
+        <Form onSubmit={this.handleSubmit}>
+          <InputGroup error={error}>
+            <input
+              type="text"
+              placeholder="Adicionar repositório"
+              value={newRepo}
+              onChange={this.handleInputChange}
+            />
+            <span>{errorMessage}</span>
+          </InputGroup>
+
           <SubmitButton loading={loading}>
             {loading ? (
               <FaSpinner color="#fff" size={14} />
@@ -93,6 +96,7 @@ export default class Main extends Component {
             )}
           </SubmitButton>
         </Form>
+
         <List>
           {repositories.map(repository => (
             <li key={repository.name}>

@@ -4,13 +4,28 @@ export const Form = styled.form`
   margin-top: 30px;
   display: flex;
   flex-direction: row;
+`;
+
+export const InputGroup = styled.div`
+  flex: 1;
 
   input {
     flex: 1;
-    border: 1px solid ${props => (props.error ? 'red' : '#eee')};
+    width: 100%;
+    border: 1px solid #eee;
     padding: 10px 15px;
     border-radius: 4px;
     font-size: 16px;
+
+    ${props =>
+      props.error &&
+      css`
+        border: 1px solid red;
+      `}
+  }
+
+  span {
+    color: #ff0000;
   }
 `;
 
